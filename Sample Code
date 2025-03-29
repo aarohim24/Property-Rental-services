@@ -1,0 +1,351 @@
+import java.util.*;
+import java.util.stream.*;
+
+public class StudentHousingApp {
+    private static HousingSystem system = new HousingSystem();
+    private static Scanner scanner = new Scanner(System.in);
+
+    public static void main(String[] args) {
+        // Load sample data
+        loadSampleData();
+        
+        // Main menu loop
+        while (true) {
+            System.out.println("\n==== Student Housing Management ====");
+            System.out.println("1. View All Properties");
+            System.out.println("2. Filter Properties");
+            System.out.println("3. Add New Property");
+            System.out.println("4. Exit");
+            System.out.print("Enter your choice: ");
+            
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // consume newline
+            
+            switch (choice) {
+                case 1:
+                    system.displayAllProperties();
+                    break;
+                case 2:
+                    filterPropertiesMenu();
+                    break;
+                case 3:
+                    addPropertyMenu();
+                    break;
+                case 4:
+                    System.out.println("Exiting...");
+                    return;
+                default:
+                    System.out.println("Invalid choice!");
+            }
+        }
+    }
+
+    private static void filterPropertiesMenu() {
+        System.out.println("\n==== Filter Options ====");
+        System.out.println("1. By Location");
+        System.out.println("2. By Rent Range");
+        System.out.println("3. By Type (PG/Hostel/Flat)");
+        System.out.println("4. By Gender");
+        System.out.println("5. By Amenities");
+        System.out.print("Enter filter choice: ");
+        
+        int filterChoice = scanner.nextInt();
+        scanner.nextLine();
+        
+        switch (filterChoice) {
+            case 1: // Location filter
+                System.out.print("Enter location (Prem Nagar/Bhidoli/Kandoli): ");
+                String location = scanner.nextLine();
+                displayResults(system.filterByLocation(location));
+                break;
+                
+            case 2: // Rent filter
+                System.out.print("Enter minimum rent: ");
+                double min = scanner.nextDouble();
+                System.out.print("Enter maximum rent: ");
+                double max = scanner.nextDouble();
+                displayResults(system.filterByRentRange(min, max));
+                break;
+                
+            case 3: // Type filter
+                System.out.print("Enter type (PG/Hostel/Flat): ");
+                String type = scanner.nextLine();
+                displayResults(system.filterByType(type));
+                break;
+                
+            case 4: // Gender filter
+                System.out.print("Enter gender preference (Male/Female/Unisex): ");
+                String gender = scanner.nextLine();
+                displayResults(system.filterByGender(gender));
+                break;
+                
+            case 5: // Amenities filter
+                System.out.println("Select amenities (comma separated):");
+                System.out.println("Options: WiFi, Meals, Security, AC, Geyser, Kitchen, Laundry");
+                String[] amenities = scanner.nextLine().split(",");
+                displayResults(system.filterByAmenities(amenities));
+                break;
+                
+            default:
+                System.out.println("Invalid filter choice!");
+        }
+    }
+
+    private static void displayResults(List<Property> properties) {
+        if (properties.isEmpty()) {
+            System.out.println("No properties match your criteria!");
+        } else {
+            System.out.println("\n=== Matching Properties ===");
+            properties.forEach(Property::displayDetails);
+            System.out.println("Found " + properties.size() + " properties");
+        }
+    }
+
+    // Add the new filter methods to HousingSystem class
+    class HousingSystem {
+        // ... existing code ...
+        
+        public List<Property> filterByRentRange(double min, double max) {
+            return properties.stream()
+                .filter(p -> p.getRent() >= min && p.getRent() <= max)
+                .collect(Collectors.toList());
+        }
+        
+        public List<Property> filterByType(String type) {
+            return properties.stream()
+                .filter(p -> p.getType().equalsIgnoreCase(type))
+                .collect(Collectors.toList());
+        }
+        
+        public List<Property> filterByGender(String gender) {
+            return properties.stream()
+                .filter(p -> p.getGender().equalsIgnoreCase(gender) || 
+                            p.getGender().equalsIgnoreCase("Unisex"))
+                .collect(Collectors.toList());
+        }
+        
+        public List<Property> filterByAmenities(String[] amenities) {
+            return properties.stream()
+                .filter(p -> {
+                    for (String amenity : amenities) {
+                        if (!p.hasAmenity(amenity.trim())) return false;
+                    }
+                    return true;
+                })
+                .collect(Collectors.toList());
+        }
+    }
+}
+
+
+
+
+
+
+
+
+/// another code 
+import java.io.*;
+import java.util.*;
+
+// Unit II: Class fundamentals, inheritance, interfaces
+interface Housing {
+    void displayDetails();
+    double calculateDiscount(int months);
+}
+
+// Abstract class demonstrating Unit II concepts
+abstract class Property implements Housing {
+    protected String name;
+    protected String type;
+    protected String location;
+    protected double rent;
+    protected boolean wifi;
+    protected boolean meals;
+    protected double rating;
+    
+    // Constructor
+    public Property(String name, String type, String location, double rent, 
+                   boolean wifi, boolean meals, double rating) {
+        this.name = name;
+        this.type = type;
+        this.location = location;
+        this.rent = rent;
+        this.wifi = wifi;
+        this.meals = meals;
+        this.rating = rating;
+    }
+    
+    // Method overloading (Unit II)
+    public void displayDetails() {
+        System.out.println("Property: " + name);
+    }
+    
+    public void displayDetails(boolean showAll) {
+        if (showAll) {
+            System.out.println("Property: " + name);
+            System.out.println("Type: " + type);
+            System.out.println("Location: " + location);
+            System.out.println("Rent: ₹" + rent + "/month");
+            System.out.println("WiFi: " + (wifi ? "Yes" : "No"));
+            System.out.println("Meals: " + (meals ? "Yes" : "No"));
+            System.out.println("Rating: " + rating + "/5");
+        } else {
+            displayDetails();
+        }
+    }
+    
+    // Abstract method
+    public abstract String getFacilities();
+}
+
+// Unit II: Inheritance
+class PG extends Property {
+    private int sharing;
+    private String curfew;
+    
+    public PG(String name, String type, String location, double rent, 
+             boolean wifi, boolean meals, double rating, int sharing, String curfew) {
+        super(name, type, location, rent, wifi, meals, rating);
+        this.sharing = sharing;
+        this.curfew = curfew;
+    }
+    
+    // Method overriding (Unit II)
+    @Override
+    public String getFacilities() {
+        return "Sharing: " + sharing + ", Curfew: " + curfew;
+    }
+    
+    @Override
+    public double calculateDiscount(int months) {
+        if (months >= 6) {
+            return rent * 0.9; // 10% discount for 6+ months
+        }
+        return rent;
+    }
+}
+
+class Hostel extends Property {
+    private boolean laundry;
+    private boolean mess;
+    
+    public Hostel(String name, String type, String location, double rent, 
+                 boolean wifi, boolean meals, double rating, boolean laundry, boolean mess) {
+        super(name, type, location, rent, wifi, meals, rating);
+        this.laundry = laundry;
+        this.mess = mess;
+    }
+    
+    @Override
+    public String getFacilities() {
+        return "Laundry: " + (laundry ? "Yes" : "No") + ", Mess: " + (mess ? "Yes" : "No");
+    }
+    
+    @Override
+    public double calculateDiscount(int months) {
+        if (months >= 12) {
+            return rent * 0.85; // 15% discount for yearly stay
+        }
+        return rent;
+    }
+}
+
+// Unit III: Nested class example
+class HousingSystem {
+    // Static nested class for configuration
+    static class Config {
+        static final String DATA_FILE = "housing_data.txt";
+        static final String[] LOCATIONS = {"Prem Nagar", "Bhidoli", "Kandoli"};
+    }
+    
+    private List<Property> properties;
+    
+    public HousingSystem() {
+        properties = new ArrayList<>();
+    }
+    
+    // Unit I: Arrays and program control statements
+    public void loadProperties() {
+        try (BufferedReader br = new BufferedReader(new FileReader(Config.DATA_FILE))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split("\t");
+                // Process data and create property objects
+                // (Implementation would parse the data file columns)
+            }
+        } catch (IOException e) {
+            // Unit III: Exception handling
+            System.err.println("Error reading file: " + e.getMessage());
+        }
+    }
+    
+    public void addProperty(Property property) {
+        properties.add(property);
+    }
+    
+    public void displayAllProperties() {
+        for (Property p : properties) {
+            p.displayDetails(true);
+            System.out.println("Facilities: " + p.getFacilities());
+            System.out.println("-----------------------");
+        }
+    }
+    
+    // Unit I: Strings and arrays
+    public Property[] filterByLocation(String location) {
+        List<Property> filtered = new ArrayList<>();
+        for (Property p : properties) {
+            if (p.location.equalsIgnoreCase(location)) {
+                filtered.add(p);
+            }
+        }
+        return filtered.toArray(new Property[0]);
+    }
+}
+
+public class StudentHousingApp {
+    public static void main(String[] args) {
+        // Unit I: Comment line arguments
+        if (args.length > 0) {
+            System.out.println("Command line arguments received:");
+            for (String arg : args) {
+                System.out.println(arg);
+            }
+        }
+        
+        HousingSystem system = new HousingSystem();
+        
+        // Add sample properties (would normally load from file)
+        system.addProperty(new PG("Maple Residency PG", "PG", "Prem Nagar", 12534, 
+                                false, true, 4.3, 3, "10:00 PM"));
+        system.addProperty(new Hostel("Sunrise Boys Hostel", "Hostel", "Prem Nagar", 
+                                    14816, false, true, 4.4, true, true));
+        
+        // Display all properties
+        system.displayAllProperties();
+        
+        // Filter by location
+        System.out.println("\nProperties in Prem Nagar:");
+        Property[] premNagarProps = system.filterByLocation("Prem Nagar");
+        for (Property p : premNagarProps) {
+            p.displayDetails();
+        }
+        
+        // Unit I: Operators and variables
+        double budget = 10000;
+        System.out.println("\nProperties under ₹" + budget + ":");
+        for (Property p : system.filterByLocation("Prem Nagar")) {
+            if (p.rent <= budget) {
+                p.displayDetails(true);
+            }
+        }
+        
+        // Unit III: Thread example
+        Thread dataLoader = new Thread(() -> {
+            System.out.println("\nLoading data in background...");
+            system.loadProperties();
+        });
+        dataLoader.start();
+    }
+}
